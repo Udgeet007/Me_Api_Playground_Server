@@ -88,5 +88,64 @@ export const createProfile = async (req, res) => {
 };
 
 export const getAllProfiles = async (req, res) => {
-  
+  try {
+    // Extract query parameters for pagination and filtering
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Optional: Add search functionality
+    let Users = {};
+    if (req.query.search) {
+      Users = {
+        $or: [
+          { name: { $regex: req.query.search, $options: 'i' } },
+          { email: { $regex: req.query.search, $options: 'i' } },
+          { 'skills': { $in: [new RegExp(req.query.search, 'i')] } }
+        ]
+      };
+    }
+
+    // Get profiles with pagination
+    const profiles = await Profile.find(Users)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    // Get total count for pagination info
+    const totalProfiles = await Profile.countDocuments(Users);
+    const totalPages = Math.ceil(totalProfiles / limit);
+
+    // Check if profiles exist
+    if (!profiles || profiles.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No profiles found"
+      });
+    }
+
+    // Return success response with pagination info
+    res.status(200).json({
+      success: true,
+      message: "Profiles fetched successfully",
+      data: profiles,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalProfiles,
+        profilesPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      }
+    });
+
+  } catch (error) {
+    console.error("Error fetching profiles:", error);
+    
+    res.status(500).json({
+      success: false,
+      message: "Error in fetching profiles",
+      error: error.message,
+    });
+  }
 };
