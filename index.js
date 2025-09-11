@@ -1,15 +1,20 @@
 import express from 'express';
 const app = express();
 import connectToDB from './config/connection.js';
+import profileRouter from './routes/profile.route.js';
+import cors from 'cors';
 import dotenv from 'dotenv'
 dotenv.config();
 const port = process.env.PORT || 3000;
 
-
+app.use(express.json());
+app.use(express.urlencoded({extended:true}));
+app.use(cors());
 app.get('/', (req,res) =>{
-  res.send('Server is Working');
+  res.send('Health for Liveness');
 })
 
+app.use('/api/profile', profileRouter);
 
 app.listen(port, () =>{
   connectToDB();
