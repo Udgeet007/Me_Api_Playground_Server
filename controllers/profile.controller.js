@@ -140,12 +140,54 @@ export const getAllProfiles = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error fetching profiles:", error);
-    
     res.status(500).json({
       success: false,
       message: "Error in fetching profiles",
       error: error.message,
     });
   }
+};
+
+export const searchProfilesBySkills = async (req, res) => {
+  try {
+    // get skills from query parameters
+    const { skills } = req.query;
+    
+    //check if skills is provided
+    if (!skills) {
+      return res.status(400).json({
+        success: false,
+        message: "Skills parameter is required in query"
+      });
+    }
+
+    const skillsArray = skills.split(',').map(skill => skill.trim());
+    
+    // Create case-insensitive regex patterns for each skill
+    const skillRegexArray = skillsArray.map(skill => new RegExp(skill, 'i'));
+    
+    // Find profiles that contain any of the specified skills
+    const profiles = await Profile.find({
+      skills: {
+        $in: skillRegexArray
+      }
+    }).select('-__v'); // Exclude version field
+    
+    // Return results
+    res.status(200).json({
+      success: true,
+      message: `Found ${profiles.length} profile(s) with the specified skill(s)`,
+      count: profiles.length,
+      data: profiles,
+      searchedSkills: skillsArray
+    });
+    
+  } catch (error) {  
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+
 };
