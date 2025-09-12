@@ -7,9 +7,12 @@ import dotenv from 'dotenv'
 dotenv.config();
 const port = process.env.PORT || 3000;
 
+app.use(cors({
+  origin:'https://me-api-playground-client.vercel.app/',
+  credentials:true
+}));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-app.use(cors());
 app.get('/', (req,res) =>{
   res.send('Health for Liveness');
 })

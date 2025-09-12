@@ -56,22 +56,23 @@ http://localhost:9889/api
 Updated API Endpoints:
 
 Create Profile - POST http://localhost:9889/api/profile/create
+deploy Url Api - POST https://me-api-playground-server.onrender.com/api/profile/create
 
 Create a new user profile
 
 
 Get All Profiles - GET http://localhost:9889/api/profile/profiles
-
+deploy Url Api - POST https://me-api-playground-server.onrender.com/api/profile/profiles
 Retrieve all profiles with pagination and search
 
 
 Update Profile - PUT http://localhost:9889/api/profile/update/:id
-
+deploy Url Api - POST https://me-api-playground-server.onrender.com/api/profile/update/:id
 Search by ID and update an existing profile (partial updates supported)
 
 
 Search by Skills - GET http://localhost:9889/api/profile/search/skills?skills=javascript
-
+deploy Url Api - POST https://me-api-playground-server.onrender.com/api/profile/search/skills?skills=javascript
 Search profiles based on specific skills
 
 
