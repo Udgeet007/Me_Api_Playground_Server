@@ -8,11 +8,12 @@ dotenv.config();
 const port = process.env.PORT || 3000;
 
 // Fixed CORS configuration
-app.use(cors({
+
+  app.use(cors({
   origin: [
     'https://me-api-playground-client.vercel.app',
     'https://me-api-playground-client-hxhwf6gp2-udgeet-bhatts-projects.vercel.app',
-    'http://localhost:3000' 
+    'http://localhost:3000' // for local development
   ],
   credentials: true
 }));
