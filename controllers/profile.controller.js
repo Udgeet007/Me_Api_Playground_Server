@@ -148,6 +148,104 @@ export const getAllProfiles = async (req, res) => {
   }
 };
 
+export const updateProfile = async (req, res) => {
+  try {
+    // Get profile ID from URL parameters
+    const { id } = req.params;
+
+    // Extract all data from request body
+    const {
+      name,
+      education,
+      skills,
+      projects,
+      work,
+      links
+    } = req.body;
+
+    // Check if profile exists
+    const existingProfile = await Profile.findById(id);
+    if (!existingProfile) {
+      return res.status(404).json({
+        success: false,
+        message: "Profile not found"
+      });
+    }
+
+    // Create update object with only provided fields
+    const updateData = {};
+    
+    if (name !== undefined) updateData.name = name;
+    if (education !== undefined) updateData.education = education;
+    if (skills !== undefined) updateData.skills = skills;
+    if (projects !== undefined) updateData.projects = projects;
+    if (work !== undefined) updateData.work = work;
+    if (links !== undefined) {
+      updateData.links = {
+        github: links.github,
+        linkedin: links.linkedin,
+        portfolio: links.portfolio
+      };
+    }
+    
+    // Always update the timestamp
+    updateData.updatedAt = new Date();
+
+    // Check if there's anything to update
+    if (Object.keys(updateData).length === 1) { // Only updatedAt
+      return res.status(400).json({
+        success: false,
+        message: "No valid fields provided for update"
+      });
+    }
+
+    // Update the profile
+    const updatedProfile = await Profile.findByIdAndUpdate(
+      id,
+      updateData,
+      { 
+        new: true, // Return the updated document
+        runValidators: true // Run mongoose validations
+      }
+    );
+
+    // Return success response
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedProfile
+    });
+
+  } catch (error) {
+    console.error("Error updating profile:", error);
+
+    // Handle invalid ObjectId error
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid profile ID"
+      });
+    }
+
+    // Handle mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({
+        success: false,
+        message: "Validation error",
+        errors: validationErrors
+      });
+    }
+
+    // Handle other errors
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+};
+
 export const searchProfilesBySkills = async (req, res) => {
   try {
     // get skills from query parameters
